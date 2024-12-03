@@ -1,0 +1,107 @@
+-- Criar o banco de dados
+DROP DATABASE IF EXISTS Escola;
+CREATE DATABASE Escola;
+USE Escola;
+
+-- Criar a tabela de estudantes
+CREATE TABLE Estudantes (
+    id_estudante INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    data_nascimento DATE NOT NULL,
+    turma INT NOT NULL
+);
+
+-- Criar a tabela de professores
+CREATE TABLE Professores (
+    id_professor INT AUTO_INCREMENT PRIMARY KEY,
+    nome VARCHAR(100) NOT NULL,
+    disciplina VARCHAR(100) NOT NULL
+);
+
+-- Criar a tabela de turmas
+CREATE TABLE Turmas (
+    id_turma INT AUTO_INCREMENT PRIMARY KEY,
+    nome_turma VARCHAR(50) NOT NULL,
+    id_professor INT NOT NULL,
+    FOREIGN KEY (id_professor) REFERENCES Professores(id_professor)
+);
+
+-- Criar a tabela de notas
+CREATE TABLE Notas (
+    id_nota INT AUTO_INCREMENT PRIMARY KEY,
+    id_estudante INT NOT NULL,
+    id_turma INT NOT NULL,
+    nota DECIMAL(5, 2) NOT NULL,
+    FOREIGN KEY (id_estudante) REFERENCES Estudantes(id_estudante),
+    FOREIGN KEY (id_turma) REFERENCES Turmas(id_turma)
+);
+
+-- Inserir dados fictícios na tabela de professores
+INSERT INTO Professores (nome, disciplina) VALUES
+('Carlos Silva', 'Matemática'),
+('Ana Oliveira', 'História'),
+('Marcos Santos', 'Física'),
+('Joana Almeida', 'Química'),
+('Pedro Lima', 'Biologia'),
+('Luciana Souza', 'Inglês');
+
+-- Inserir dados fictícios na tabela de turmas
+INSERT INTO Turmas (nome_turma, id_professor) VALUES
+('Turma A', 1),
+('Turma B', 2),
+('Turma C', 3),
+('Turma D', 4);
+
+-- Inserir dados fictícios na tabela de estudantes
+INSERT INTO Estudantes (nome, data_nascimento, turma) VALUES
+('João Silva', '2008-05-15', 1),
+('Maria Oliveira', '2007-09-22', 1),
+('Carlos Santos', '2008-01-18', 1),
+('Ana Souza', '2009-03-05', 2),
+('Pedro Lima', '2008-07-11', 2),
+('Luciana Mendes', '2007-12-30', 2),
+('Rafael Costa', '2009-06-14', 3),
+('Clara Martins', '2008-10-25', 3),
+('Fernando Almeida', '2007-08-16', 3),
+('Juliana Rodrigues', '2009-04-23', 4),
+('Daniel Ferreira', '2008-02-28', 4),
+('Laura Araújo', '2008-11-19', 4),
+('Gabriel Rocha', '2007-06-09', 1),
+('Sofia Barros', '2008-08-17', 2),
+('Thiago Pereira', '2009-01-26', 3);
+
+-- Inserir dados fictícios na tabela de notas
+INSERT INTO Notas (id_estudante, id_turma, nota) VALUES
+(1, 1, 8.5), (2, 1, 7.0), (3, 1, 9.0), (13, 1, 6.5), -- Turma A
+(4, 2, 8.0), (5, 2, 7.5), (6, 2, 9.2), (14, 2, 6.8), -- Turma B
+(7, 3, 8.8), (8, 3, 7.4), (9, 3, 9.1), (15, 3, 8.3), -- Turma C
+(10, 4, 7.7), (11, 4, 8.9), (12, 4, 6.5), (15, 4, 7.3); -- Turma D
+
+-- Consultas
+-- 1. Listar as notas dos alunos em cada turma
+SELECT 
+    t.nome_turma, 
+    e.nome AS estudante, 
+    n.nota 
+FROM Notas n
+JOIN Estudantes e ON n.id_estudante = e.id_estudante
+JOIN Turmas t ON n.id_turma = t.id_turma
+ORDER BY t.nome_turma, e.nome;
+
+-- 2. Exibir os professores responsáveis por cada turma
+SELECT 
+    t.nome_turma, 
+    p.nome AS professor, 
+    p.disciplina 
+FROM Turmas t
+JOIN Professores p ON t.id_professor = p.id_professor
+ORDER BY t.nome_turma;
+
+-- 3. Mostrar a média de notas por turma
+SELECT 
+    t.nome_turma, 
+    ROUND(AVG(n.nota), 2) AS media_notas 
+FROM Notas n
+JOIN Turmas t ON n.id_turma = t.id_turma
+GROUP BY t.nome_turma
+ORDER BY t.nome_turma;
